@@ -33,7 +33,7 @@ jobs:
              cd backend
              npm install
              npm build
-             exit 1
+             exit 2
       - save_cache:
           paths: [backend/node_modules]
           key: backend-build
