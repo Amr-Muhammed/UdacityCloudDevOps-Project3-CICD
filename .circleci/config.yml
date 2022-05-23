@@ -33,7 +33,7 @@ jobs:
              cd backend
              npm test
              npm build
-             exit 2
+            # exit 2
       - save_cache:
           paths: [backend/node_modules]
           key: backend-build
