@@ -1,6 +1,6 @@
 version: 2.1
 orbs: 
-  slack: circleci/slack@4.10.1
+  slack: circleci/slack@4.26.2
 
 jobs:
   build-frontend:
@@ -121,7 +121,7 @@ workflows:
           requires:
             - build-backend
           context:
-            - localcircleci-opa4437.slack.com
+            - slack-secrets
       - scan-frontend:
           requires:
             - build-frontend
