@@ -104,13 +104,6 @@ jobs:
       - slack/notify:
           event: fail
           template: basic_fail_1
-  notify:
-    docker:
-      - image: 'cimg/base:stable'
-    steps:
-      - slack/notify:
-          event: fail
-          template: basic_fail_1
            
 
 workflows:
@@ -128,8 +121,8 @@ workflows:
       - scan-backend:
           requires:
             - build-backend
+          notify:
+           context: slack-secrets
       - scan-frontend:
           requires:
             - build-frontend
-      - notify:
-          context: slack-secrets
