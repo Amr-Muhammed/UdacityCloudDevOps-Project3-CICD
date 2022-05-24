@@ -121,8 +121,7 @@ workflows:
       - scan-backend:
           requires:
             - build-backend
-          notify:
-           context: slack-secrets
+          context: slack-secrets
       - scan-frontend:
           requires:
             - build-frontend
