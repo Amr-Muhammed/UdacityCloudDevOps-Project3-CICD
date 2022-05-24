@@ -1,5 +1,6 @@
 version: 2.1
-
+orbs: 
+  slack: circleci/slack@4.10.1
 
 jobs:
   build-frontend:
@@ -98,7 +99,11 @@ jobs:
             npm audit fix --audit-level=critical --force
             npm audit fix --audit-level=critical --force
             npm audit --audit-level=critical
-            
+            exit 1
+      - slack/notify:
+           channel: circleci-pipeline-notification
+           event: fail
+           template: basic_fail_1
 
             
 workflows:
@@ -115,6 +120,8 @@ workflows:
       - scan-backend:
           requires:
             - build-backend
+          context:
+            - localcircleci-opa4437.slack.com
       - scan-frontend:
           requires:
             - build-frontend
