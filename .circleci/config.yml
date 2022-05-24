@@ -120,11 +120,7 @@ jobs:
             npm audit fix --audit-level=critical --force
             npm audit fix --audit-level=critical --force
             npm audit --audit-level=critical
-            exit 1
-      - slack/notify:
-           channel: circleci-pipeline-notification
-           event: fail
-           template: basic_fail_1
+
 
             
 workflows:
@@ -132,8 +128,7 @@ workflows:
     jobs:
       - notify:
           context: 
-            - SLACK_ACCESS_TOKEN
-            - SLACK_DEFAULT_CHANNEL
+            - slack-secrets
       - build-frontend
       - build-backend
       - test-frontend:
@@ -145,9 +140,6 @@ workflows:
       - scan-backend:
           requires:
             - build-backend
-          context:
-            - SLACK_ACCESS_TOKEN
-            - SLACK_DEFAULT_CHANNEL
       - scan-frontend:
           requires:
             - build-frontend
