@@ -131,7 +131,9 @@ workflows:
   default:
     jobs:
       - notify:
-          context: slack-secrets
+          context: 
+            - SLACK_ACCESS_TOKEN
+            - SLACK_DEFAULT_CHANNEL
       - build-frontend
       - build-backend
       - test-frontend:
@@ -144,7 +146,8 @@ workflows:
           requires:
             - build-backend
           context:
-            - slack-secrets
+            - SLACK_ACCESS_TOKEN
+            - SLACK_DEFAULT_CHANNEL
       - scan-frontend:
           requires:
             - build-frontend
