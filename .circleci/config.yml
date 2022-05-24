@@ -3,13 +3,7 @@ orbs:
   slack: circleci/slack@4.10.1
 
 jobs:
-  notify:
-    docker:
-      - image: 'cimg/base:stable'
-    steps:
-      - slack/notify:
-          event: fail
-          template: basic_fail_1
+
   build-frontend:
     docker:
       - image: circleci/node:13.8.0
@@ -110,6 +104,13 @@ jobs:
       - slack/notify:
           event: fail
           template: basic_fail_1
+  notify:
+    docker:
+      - image: 'cimg/base:stable'
+    steps:
+      - slack/notify:
+          event: fail
+          template: basic_fail_1
            
 
 workflows:
@@ -130,3 +131,5 @@ workflows:
       - scan-frontend:
           requires:
             - build-frontend
+      - notify:
+          context: slack-secrets
