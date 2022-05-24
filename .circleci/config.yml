@@ -3,27 +3,6 @@ orbs:
   slack: circleci/slack@4.10.1
 
 jobs:
-  notify:
-    docker:
-      - image: 'cimg/base:stable'
-    steps:
-      - slack/notify:
-          custom: |
-            {
-              "blocks": [
-                {
-                  "type": "section",
-                  "fields": [
-                    {
-                      "type": "plain_text",
-                      "text": "*WOW, Slack is working on*",
-                      "emoji": true
-                    }
-                  ]
-                }
-              ]
-            }
-          event: always
   build-frontend:
     docker:
       - image: circleci/node:13.8.0
@@ -120,20 +99,21 @@ jobs:
             npm audit fix --audit-level=critical --force
             npm audit fix --audit-level=critical --force
             npm audit --audit-level=critical
+            exit 1 
+      - slack/notify:
+          event: fail
+          template: basic_fail_1
+           
 
-
-            
 workflows:
   default:
     jobs:
-      - notify:
-          context: 
-            - slack-secrets
       - build-frontend
       - build-backend
       - test-frontend:
          requires:
            - build-frontend
+         context: slack-secrets
       - test-backend:
          requires: 
            - build-backend
