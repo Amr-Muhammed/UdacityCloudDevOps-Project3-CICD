@@ -181,8 +181,9 @@ jobs:
           name: Install dependencies
           working_directory: ./.circleci/ansible
           command: |
-            yum install -y tar gzip
-            yum install -y ansible
+            pip install awscli
+            apt install -y tar gzip npm nodejs
+            apt install -y ansible 
       - run:
           name: Configure server
           command: |
@@ -192,8 +193,8 @@ jobs:
       - destroy-environment:
           workflowId: ${CIRCLE_WORKFLOW_ID:0:7}
       - slack/notify:
-          event: pass
-          template: basic_success_1
+          event: fail
+          template: basic_fail_1
   
 
 workflows:
