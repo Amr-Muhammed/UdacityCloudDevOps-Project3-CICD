@@ -51,6 +51,7 @@ jobs:
           name: Back-end build
           command: |
              cd backend
+             npm cache clean --force
              npm install
              npm run build
             # exit 2
