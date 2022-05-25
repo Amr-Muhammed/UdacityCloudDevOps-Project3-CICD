@@ -8,7 +8,6 @@ commands:
     parameters:
       Workflow_ID:
         type: string
-        default: ${CIRCLE_WORKFLOW_ID:0:7}
     steps:
       - run:
           name: Destroy environments
@@ -159,7 +158,8 @@ jobs:
           root: ~/
           paths:
             - project/.circleci/ansible/inventory.txt
-      - destroy-environment
+      - destroy-environment:
+         workflowId: "${CIRCLE_WORKFLOW_ID:0:7}"
       - slack/notify:
          event: fail
          template: basic_fail_1
