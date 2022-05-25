@@ -182,8 +182,8 @@ jobs:
           working_directory: ./.circleci/ansible
           command: |
             pip install awscli
-            apt install -y tar gzip npm nodejs
-            apt install -y ansible 
+            apk add --update curl tar gzip npm nodejs
+            apt add --update ansible 
       - run:
           name: Configure server
           command: |
