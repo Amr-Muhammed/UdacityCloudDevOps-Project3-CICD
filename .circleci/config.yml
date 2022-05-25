@@ -183,7 +183,7 @@ jobs:
           command: |
             pip install awscli
             apk add --update curl tar gzip npm nodejs
-            apt add --update ansible 
+            apk add --update ansible 
       - run:
           name: Configure server
           command: |
