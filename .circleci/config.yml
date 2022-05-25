@@ -178,7 +178,7 @@ jobs:
       - attach_workspace:
           at: ~/
       - run:
-          name: Install dependencies
+          name: Install Dependencies
           working_directory: ./.circleci/ansible
           command: |
             pip install awscli
@@ -195,6 +195,48 @@ jobs:
       - slack/notify:
           event: fail
           template: basic_fail_1
+
+  run-migrations:
+    docker:
+      - image: python:3.7-alpine3.11
+    steps:
+      - checkout
+      - run:
+          name: Install Dependencies
+          command: |
+            pip install awscli
+            apk add --update curl nodejs npm
+      - attach_workspace:
+          at: ~/
+      - run:
+          name: Install Another Dependencies
+          command: |
+            cd backend
+            npm install
+            cp .env.sample .env      
+      - run:
+          name: Run migrations
+          command: |
+            cd backend
+            npm i
+            npm run migrations >> migrations_dump.txt
+      - run:
+          name: Print Migration_Result
+          command: |
+            cd backend
+            cat migrations_dump.txt
+      - run:
+          name: Send Migration Status to kvdb.io
+          command: |
+            if grep -q "has been executed successfully." ~/project/backend/migrations_dump.txt
+            then
+               curl https://kvdb.io/RLjmVpnWJXjjQUzmfPR1uT/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
+            fi
+      - destroy-environment:
+          workflowId: ${CIRCLE_WORKFLOW_ID:0:7}
+      - slack/notify:
+          event: fail
+          template: basic_fail_1     
   
 
 workflows:
@@ -228,3 +270,7 @@ workflows:
          requires:
            - deploy-infrastructure
          context: slack-secrets
+      - run-migrations:
+          requires: 
+            - configure-infrastructure
+          context: slack-secrets
