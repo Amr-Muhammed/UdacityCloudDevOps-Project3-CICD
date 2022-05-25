@@ -198,27 +198,26 @@ jobs:
 
   run-migrations:
     docker:
-      - image: python:3.7-alpine3.11
+      - image: circleci/node:13.8.0
     steps:
       - checkout
       - run:
-          name: Install Dependencies
+          name: Install AWS-CLI V2 Dependencies
           command: |
-            pip install awscli
-            apk add --update curl nodejs npm
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip awscliv2.zip
+            sudo ./aws/install
       - attach_workspace:
-          at: ~/
-      - run:
-          name: Install Another Dependencies
-          command: |
-            cd backend
-            npm install
-            cp .env.sample .env      
+          at: ~/project
+      - restore_cache:
+          keys: [backend-build] 
       - run:
           name: Run migrations
+          no_output_timeout: 7m
           command: |
-            cd backend
-            npm run migrations >> migrations_dump.txt
+              cd backend
+              npm install
+              npm run migrations > migrations_dump.txt
       - run:
           name: Print Migration_Result
           command: |
