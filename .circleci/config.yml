@@ -165,8 +165,36 @@ jobs:
           workflowId: ${CIRCLE_WORKFLOW_ID:0:7}
       - slack/notify:
           event: pass
-          template: basic_success_1
+          template: success_tagged_deploy_1
 
+
+  configure-infrastructure:
+    docker:
+      - image: python:3.7-alpine3.11
+    steps:
+      - checkout
+      - add_ssh_keys:
+          fingerprints: [b5:6f:83:3d:08:99:24:be:40:55:b1:8a:dd:d9:d0:07:ca:91:4e:e8]
+      - attach_workspace:
+          at: ~/
+      - run:
+          name: Install dependencies
+          working_directory: ./.circleci/ansible
+          command: |
+            yum install -y tar gzip
+            yum install -y ansible
+      - run:
+          name: Configure server
+          command: |
+            cd .circleci/ansible
+            cat inventory.txt
+            ansible-playbook -i inventory.txt configure-server.yaml
+      - destroy-environment:
+          workflowId: ${CIRCLE_WORKFLOW_ID:0:7}
+      - slack/notify:
+          event: pass
+          template: basic_success_1
+  
 
 workflows:
   default:
@@ -194,4 +222,8 @@ workflows:
            - test-backend
            - scan-frontend
            - scan-backend
+         context: slack-secrets
+      - configure-infrastructure:
+         requires:
+           - deploy-infrastructure
          context: slack-secrets

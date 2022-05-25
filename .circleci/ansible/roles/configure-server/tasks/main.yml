@@ -1,0 +1,9 @@
+- name: "Install nodejs"
+  become: true
+  shell: |
+    apt -y upgrade
+    apt install -y nodejs npm
+- name: "Install pm2"
+  become: true
+  shell: |
+    npm install pm2 -g
