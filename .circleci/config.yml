@@ -18,6 +18,16 @@ commands:
             aws cloudformation delete-stack --stack-name "udapeople-front-end-<< parameters.workflowId >>"
             aws s3 rm s3://udapeople-037284231276 --recursive
 
+  AWScli-setup:
+    description: Setup AWS Cli-Version 2 
+    steps:
+      - run:
+          name: SetUp Aws Cli
+          command: |
+            apk add --update curl 
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip awscliv2.zip
+            ./aws/install      
 
 
 jobs:
@@ -28,7 +38,7 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          keys: [frontend-build]
+          keys: [frontend-dependances]
       - run:
           name: Build front-end
           command: |
@@ -38,7 +48,7 @@ jobs:
            # exit 1
       - save_cache:
           paths: [frontend/node_modules]
-          key: frontend-build
+          key: frontend-dependances
 
   build-backend:
     docker:
@@ -46,18 +56,17 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          keys: [backend-build]
+          keys: [backend-dependances]
       - run:
           name: Back-end build
           command: |
              cd backend
-             npm cache clean --force
              npm install
              npm run build
             # exit 2
       - save_cache:
           paths: [backend/node_modules]
-          key: backend-build
+          key: backend-dependances
       - slack/notify:
           event: pass
           template: basic_success_1
@@ -202,19 +211,11 @@ jobs:
       - image: circleci/node:13.8.0
     steps:
       - checkout
-      - run:
-          name: Install AWS-CLI V2 Dependencies
-          command: |
-            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-            unzip awscliv2.zip
-            sudo ./aws/install
-      - attach_workspace:
-          at: ~/project
+      - AWScli-setup
       - restore_cache:
-          keys: [backend-build] 
+          keys: [backend-dependances]
       - run:
           name: Run migrations
-          no_output_timeout: 7m
           command: |
               cd backend
               npm install
