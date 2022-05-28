@@ -18,7 +18,7 @@ commands:
             aws cloudformation delete-stack --stack-name "udapeople-front-end-<< parameters.workflowId >>"
             aws s3 rm s3://udapeople-037284231276 --recursive
 
-  AWScli-setup:
+  awscli-v2-setup:
     description: Setup AWS Cli-Version 2 
     steps:
       - run:
@@ -211,7 +211,7 @@ jobs:
       - image: circleci/node:13.8.0
     steps:
       - checkout
-      - AWScli-setup
+      - awscli-v2-setup
       - restore_cache:
           keys: [backend-dependances]
       - run:
