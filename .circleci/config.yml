@@ -209,6 +209,7 @@ jobs:
       - image: circleci/node:13.8.0
     steps:
       - checkout
+      - awscli-v2-setup
       - restore_cache:
           keys: [backend-dependances]
       - run:
@@ -229,8 +230,6 @@ jobs:
             then
                 curl https://kvdb.io/${KVDB_BUCKET}/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
             fi
-      - destroy-environment:
-          workflowId: ${CIRCLE_WORKFLOW_ID:0:7}
       - slack/notify:
           event: fail
           template: basic_fail_1     
