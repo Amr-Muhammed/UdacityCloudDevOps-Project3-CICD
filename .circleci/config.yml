@@ -22,7 +22,7 @@ commands:
     description: Setup AWS Cli-Version 2 
     steps:
       - run:
-          name: SetUp Aws Cli
+          name: Setup AWS Cli
           command: |
             curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
             unzip awscliv2.zip
@@ -206,9 +206,10 @@ jobs:
 
   run-migrations:
     docker:
-      - image: circleci/node:13.8.0
+      - image: cimg/node:13.8.0
     steps:
       - checkout
+      - awscli-v2-setup
       - restore_cache:
           keys: [backend-dependances]
 
@@ -232,10 +233,11 @@ jobs:
             then
                curl https://kvdb.io/${KVDB}/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
             fi
-            
+
+      - destroy-environment
       - slack/notify:
-          event: fail
-          template: basic_fail_1     
+          event: pass
+          template: basic_success_1
   
 
 workflows:
