@@ -22,11 +22,31 @@ commands:
     description: Setup AWS Cli-Version 2 
     steps:
       - run:
-          name: Setup AWS Cli
+          name: SetUp Aws Cli
           command: |
             curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
             unzip awscliv2.zip
             ./aws/install      
+
+  revert-migrations:
+    description: Revert the last migration if successfully run in the current workflow.
+    parameters:
+      Workflow_ID:
+        type: string
+        default: ${CIRCLE_WORKFLOW_ID:0:7}     
+    steps:
+      - run:
+          name: Revert migrations
+          when: on_fail
+          command: |
+            SUCCESS=$(curl --insecure  https://kvdb.io/${KVDB}/migration_<< parameters.Workflow_ID >>)
+            # Logic for reverting the database state
+            if (( $SUCCESS == 1 ));
+            then
+              cd ~/project/backend
+              npm install
+              npm run migration:revert
+            fi
 
 jobs:
 
@@ -206,10 +226,9 @@ jobs:
 
   run-migrations:
     docker:
-      - image: cimg/node:13.8.0
+      - image: circleci/node:13.8.0
     steps:
       - checkout
-      - awscli-v2-setup
       - restore_cache:
           keys: [backend-dependances]
 
@@ -233,8 +252,8 @@ jobs:
             then
                curl https://kvdb.io/${KVDB}/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
             fi
-
       - destroy-environment
+      - revert-migrations
       - slack/notify:
           event: pass
           template: basic_success_1
