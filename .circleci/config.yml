@@ -206,10 +206,9 @@ jobs:
 
   run-migrations:
     docker:
-      - image: cimg/node:13.8.0
+      - image: circleci/node:13.8.0
     steps:
       - checkout
-      - awscli-v2-setup
       - restore_cache:
           keys: [backend-dependances]
       - run:
