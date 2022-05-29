@@ -393,9 +393,10 @@ jobs:
       - destroy-environment
       - revert-migrations
       - slack/notify:
-          event: pass
-          template: basic_success_1
-  
+          event: fail
+          template: basic_fail_1
+
+
 workflows:
   default:
     jobs:
@@ -445,3 +446,4 @@ workflows:
             - deploy-frontend
             - deploy-backend
           context: slack-secrets
+
