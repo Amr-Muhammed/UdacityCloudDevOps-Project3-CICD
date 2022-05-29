@@ -390,8 +390,6 @@ jobs:
               exit 1
             fi
 
-      - destroy-environment
-      - revert-migrations
       - slack/notify:
           event: fail
           template: basic_fail_1
