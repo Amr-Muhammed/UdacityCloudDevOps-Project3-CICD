@@ -428,6 +428,32 @@ jobs:
           event: pass
           template: basic_success_1
 
+  cleanup:
+    docker:
+      - image: amazon/aws-cli
+    steps:
+      - checkout
+      - run:
+          name: Remove old stacks and files
+          command: |
+            export STACKS=($(aws cloudformation list-stacks \
+                --query "StackSummaries[*].StackName" \
+                --stack-status-filter CREATE_COMPLETE --no-paginate --output text)) 
+            echo Stack names: "${STACKS[@]}"
+            export OldWorkflowID=$(curl --insecure https://kvdb.io/${KVDB}/old_workflow_id)
+            echo Old Workflow ID: $OldWorkflowID 
+            if [[ "${STACKS[@]}" =~ "${OldWorkflowID}" ]]
+            then
+              aws s3 rm "s3://udapeople-${OldWorkflowID}" --recursive
+              aws cloudformation delete-stack --stack-name "udapeople-backend-${OldWorkflowID}"
+              aws cloudformation delete-stack --stack-name "udapeople-frontend-${OldWorkflowID}"
+            fi
+
+      - slack/notify:
+          event: pass
+          template: basic_success_1
+
+
 workflows:
   default:
     jobs:
@@ -480,4 +506,7 @@ workflows:
           requires: 
             - smoke-test
           context: slack-secrets
-
+      - cleanup:
+          requires: 
+            - cloudfront-update
+          context: slack-secrets
