@@ -444,7 +444,6 @@ workflows:
       - deploy-backend:
           requires: 
             - deploy-frontend
-            - run-migrations
           context: slack-secrets
       - smoke-test:
           requires: 
