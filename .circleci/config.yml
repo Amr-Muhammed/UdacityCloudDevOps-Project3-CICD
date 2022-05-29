@@ -277,6 +277,7 @@ jobs:
           command: |
             cd frontend
             npm install
+
       - run:
           name: Get backend url
           command: |
@@ -299,8 +300,56 @@ jobs:
       - revert-migrations
       - slack/notify:
           event: pass
-          template: basic_success_1
+          template: success_tagged_deploy_1
 
+  deploy-backend:
+    docker:
+      - image: python:3.7-alpine3.11
+    steps:
+      - checkout
+      - add_ssh_keys:
+          fingerprints: [b5:6f:83:3d:08:99:24:be:40:55:b1:8a:dd:d9:d0:07:ca:91:4e:e8]
+      - attach_workspace:
+          at: ~/
+      - restore_cache:
+          keys: [backend-dependances]
+      - run:
+          name: Install Dependencies
+          command: |
+            pip install awscli
+            apk add --update curl tar gzip npm nodejs
+            apk add --update ansible 
+
+      - run:
+          name: Packaging Backend
+          command: |
+             cd backend
+             npm i
+             npm run build
+             tar -czvf artifact.tar.gz dist/* package*
+             cd ..
+             cp backend/artifact.tar.gz .circleci/ansible/roles/deploy/files
+      - run:
+          name: Deploy backend
+          command: |
+             export TYPEORM_MIGRATIONS_DIR=./migrations
+             export TYPEORM_ENTITIES=./modules/domain/**/*.entity{.ts,.js}
+             export TYPEORM_MIGRATIONS=./migrations/*.ts
+             cd .circleci/ansible
+             cat inventory.txt
+             ansible-playbook -i inventory.txt deploy-backend.yml
+
+      - destroy-environment
+      - revert-migrations
+      
+      - slack/notify:
+          event: pass
+          template: success_tagged_deploy_1
+      - slack/notify:
+          event: fail
+          template: basic_fail_1
+
+  
 workflows:
   default:
     jobs:
@@ -338,5 +387,10 @@ workflows:
           context: slack-secrets
       - deploy-frontend:
           requires: 
+            - run-migrations
+          context: slack-secrets
+      - deploy-backend:
+          requires: 
+            - deploy-frontend
             - run-migrations
           context: slack-secrets
