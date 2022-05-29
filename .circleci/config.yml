@@ -365,7 +365,7 @@ jobs:
       - run:
           name: Get Backend URL 
           command: |
-             BACKEND_PUBLIC_IP=$(aws ec2 describe-instances \
+             export BACKEND_PUBLIC_IP=$(aws ec2 describe-instances \
               --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
               --output text)
@@ -373,6 +373,7 @@ jobs:
           name: Backend Smoke Test.
           command: |
              export API_URL=http://${BACKEND_PUBLIC_IP}:3030
+             echo "${API_URL}"
               if curl -s $API_URL/api/status | grep "ok"
               then
                 exit 0
@@ -389,10 +390,16 @@ jobs:
             else
               exit 1
             fi
+      - destroy-environment
+      - revert-migrations
 
       - slack/notify:
           event: fail
           template: basic_fail_1
+
+      - slack/notify:
+          event: pass
+          template: basic_success_1
 
 
 workflows:
