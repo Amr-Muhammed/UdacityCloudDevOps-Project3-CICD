@@ -1,5 +1,10 @@
 [URL01]
     https://github.com/Amr-Muhammed/UdacityCloudDevOps-Project3-CICD
 [URL02]
+    http://udapeople-8cc03ee.s3-website-us-east-1.amazonaws.com/#/employees
+[URL03]
     http://dojpdb43wjx6x.cloudfront.net/
-    
+[URL04]
+    http://54.84.38.220:3030/api/status
+[URL05]
+    http://ec2-18-205-237-167.compute-1.amazonaws.com:9090/targets
